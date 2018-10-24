@@ -1,5 +1,5 @@
 # Running Alpine 3.8
-FROM hashicorp/terraform:0.11.8
+FROM hashicorp/terraform:0.11.10
 
 # Install Go based on official Dockerfile
 #https://github.com/docker-library/golang/blob/ed78459fac108dab72556146b759516cc65ee109/1.11/alpine3.8/Dockerfile
@@ -12,6 +12,7 @@ RUN apk add --no-cache \
 RUN [ ! -e /etc/nsswitch.conf ] && echo 'hosts: files dns' > /etc/nsswitch.conf
 
 ENV GOLANG_VERSION 1.11.1
+ENV CGO_ENABLED="0"
 
 RUN set -eux; \
 	apk add --no-cache --virtual .build-deps \
@@ -63,9 +64,9 @@ ENV GOPATH /go
 ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
 
 RUN mkdir -p "$GOPATH/src" "$GOPATH/bin" && chmod -R 777 "$GOPATH"
-WORKDIR $GOPATH
-
+WORKDIR $GOPATH/src/project
 RUN curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-RUN go get github.com/gruntwork-io/terratest/modules/terraform
+RUN dep init
 
+CMD ["version"]
 ENTRYPOINT ["go"]
